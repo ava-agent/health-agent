@@ -1,0 +1,164 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=Noto+Serif+SC:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 165 60% 99%;
+  --foreground: 210 29% 24%;
+  --card: 0 0% 100%;
+  --card-foreground: 210 29% 24%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 210 29% 24%;
+  --primary: 178 29% 32%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 165 50% 94%;
+  --secondary-foreground: 178 29% 32%;
+  --muted: 165 30% 96%;
+  --muted-foreground: 210 15% 50%;
+  --accent: 0 100% 71%;
+  --accent-foreground: 0 0% 100%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 165 20% 90%;
+  --input: 165 20% 90%;
+  --ring: 178 29% 32%;
+  --radius: 0.75rem;
+  
+  --sidebar-background: 0 0% 98%;
+  --sidebar-foreground: 240 5.3% 26.1%;
+  --sidebar-primary: 240 5.9% 10%;
+  --sidebar-primary-foreground: 0 0% 98%;
+  --sidebar-accent: 240 4.8% 95.9%;
+  --sidebar-accent-foreground: 240 5.9% 10%;
+  --sidebar-border: 220 13% 91%;
+  --sidebar-ring: 217.2 91.2% 59.8%;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    @apply bg-mint-50 text-foreground font-sans antialiased;
+    font-feature-settings: "kern" 1, "liga" 1;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-serif font-semibold tracking-tight;
+  }
+}
+
+@layer components {
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-teal-600 to-teal-400;
+  }
+  
+  .card-hover {
+    @apply transition-all duration-300 ease-out hover:shadow-glow hover:-translate-y-1;
+  }
+  
+  .btn-primary {
+    @apply bg-teal-500 text-white px-6 py-3 rounded-lg font-medium 
+           transition-all duration-300 ease-out
+           hover:bg-teal-600 hover:shadow-lg hover:scale-105
+           active:scale-95;
+  }
+  
+  .btn-accent {
+    @apply bg-coral-500 text-white px-6 py-3 rounded-lg font-medium 
+           transition-all duration-300 ease-out
+           hover:bg-coral-600 hover:shadow-glow-coral hover:scale-105
+           active:scale-95;
+  }
+  
+  .section-container {
+    @apply w-full px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16;
+  }
+  
+  .section-inner {
+    @apply max-w-7xl mx-auto;
+  }
+  
+  .glass-card {
+    @apply bg-white/80 backdrop-blur-md border border-white/20 shadow-lg;
+  }
+  
+  .tag {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-medium;
+  }
+  
+  .tag-primary {
+    @apply tag bg-teal-100 text-teal-700;
+  }
+  
+  .tag-accent {
+    @apply tag bg-coral-100 text-coral-700;
+  }
+  
+  .tag-muted {
+    @apply tag bg-gray-100 text-gray-600;
+  }
+}
+
+@layer utilities {
+  .animation-delay-100 {
+    animation-delay: 100ms;
+  }
+  .animation-delay-200 {
+    animation-delay: 200ms;
+  }
+  .animation-delay-300 {
+    animation-delay: 300ms;
+  }
+  .animation-delay-400 {
+    animation-delay: 400ms;
+  }
+  .animation-delay-500 {
+    animation-delay: 500ms;
+  }
+  
+  .perspective-1000 {
+    perspective: 1000px;
+  }
+  
+  .preserve-3d {
+    transform-style: preserve-3d;
+  }
+  
+  .backface-hidden {
+    backface-visibility: hidden;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #E0F2F1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #3A6B69;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #2E5553;
+}
+
+/* Selection color */
+::selection {
+  background: rgba(58, 107, 105, 0.2);
+  color: #2C3E50;
+}
