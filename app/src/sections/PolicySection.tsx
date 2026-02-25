@@ -170,6 +170,7 @@ const PolicySection = () => {
                       }`}
                       style={{ transitionDelay: `${400 + index * 150}ms` }}
                       onMouseEnter={() => setActiveStep(step.id)}
+                      onClick={() => setActiveStep(step.id)}
                     >
                       {/* Node */}
                       <div

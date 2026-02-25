@@ -67,6 +67,13 @@ const AIAssistant = ({ userAge }: AIAssistantProps) => {
 
   const aiService = getAIService();
 
+  // 同步用户年龄到 AI 服务
+  useEffect(() => {
+    if (userAge) {
+      aiService.setUserAge(userAge);
+    }
+  }, [userAge, aiService]);
+
   // 滚动到底部
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -226,6 +233,7 @@ const AIAssistant = ({ userAge }: AIAssistantProps) => {
               </button>
               <button
                 onClick={() => setIsOpen(false)}
+                aria-label="关闭聊天窗口"
                 className="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
               >
                 <X className="w-4 h-4 text-white" />
