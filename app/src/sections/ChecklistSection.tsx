@@ -87,6 +87,8 @@ const ChecklistSection = () => {
   const [showTermDictionary, setShowTermDictionary] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
 
+  const animationTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -102,10 +104,11 @@ const ChecklistSection = () => {
       observer.observe(sectionRef.current);
     }
 
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      clearTimeout(animationTimerRef.current);
+    };
   }, []);
-
-  const animationTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   const handleCategoryChange = (categoryId: string) => {
     if (categoryId === activeCategory) return;
@@ -320,7 +323,7 @@ const ChecklistSection = () => {
               <h4 className="font-bold text-teal-800 mb-2">29岁重点关注</h4>
               <p className="text-sm text-teal-600/80 leading-relaxed">
                 建议优先做<MedicalTerm term="AMH" showIcon={false}>AMH检测</MedicalTerm>了解卵巢储备，
-                29岁正常值一般在2-6.8ng/ml
+                29岁正常值一般在1.5-4.0ng/ml
               </p>
             </div>
             <div className="bg-gradient-to-br from-coral-50 to-coral-100 rounded-2xl p-6">

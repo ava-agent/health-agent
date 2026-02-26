@@ -30,9 +30,9 @@ function App() {
         <ChecklistSection />
         <PolicySection />
         <GuideSection />
-        <CTASection />
+        <CTASection userAge={userAge} />
       </main>
-      <Footer />
+      <Footer userAge={userAge} />
       
       {/* AI Assistant - 全局悬浮 */}
       <AIAssistant userAge={userAge} />

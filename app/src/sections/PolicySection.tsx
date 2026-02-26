@@ -91,6 +91,7 @@ const PolicySection = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [lineProgress, setLineProgress] = useState(0);
   const sectionRef = useRef<HTMLDivElement>(null);
+  const lineTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -98,7 +99,7 @@ const PolicySection = () => {
         if (entry.isIntersecting) {
           setIsVisible(true);
           // Animate line progress
-          setTimeout(() => setLineProgress(100), 500);
+          lineTimerRef.current = setTimeout(() => setLineProgress(100), 500);
           observer.disconnect();
         }
       },
@@ -109,7 +110,10 @@ const PolicySection = () => {
       observer.observe(sectionRef.current);
     }
 
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      clearTimeout(lineTimerRef.current);
+    };
   }, []);
 
   return (

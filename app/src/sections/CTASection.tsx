@@ -1,7 +1,11 @@
 import { useRef, useEffect, useState } from 'react';
 import { Heart, ArrowUp, Phone } from 'lucide-react';
 
-const CTASection = () => {
+interface CTASectionProps {
+  userAge?: number;
+}
+
+const CTASection = ({ userAge = 29 }: CTASectionProps) => {
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
 
@@ -75,7 +79,7 @@ const CTASection = () => {
             </h2>
 
             <p className="text-lg text-white/80 max-w-2xl mx-auto mb-10">
-              29岁是生育的黄金年龄，提前做好准备，
+              {userAge}岁是备孕的好时机，提前做好准备，
               <br />
               为宝宝的健康打下坚实基础
             </p>

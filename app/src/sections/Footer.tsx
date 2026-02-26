@@ -1,6 +1,10 @@
-import { Heart, Phone, Mail, ExternalLink } from 'lucide-react';
+import { Heart, Phone, ExternalLink } from 'lucide-react';
 
-const Footer = () => {
+interface FooterProps {
+  userAge?: number;
+}
+
+const Footer = ({ userAge = 29 }: FooterProps) => {
   const currentYear = new Date().getFullYear();
 
   const quickLinks = [
@@ -31,21 +35,16 @@ const Footer = () => {
                 <span className="text-xl font-serif font-bold">上海备孕体检指南</span>
               </div>
               <p className="text-teal-200/80 text-sm leading-relaxed mb-6 max-w-md">
-                为29岁备孕女性量身定制的全面体检指南，涵盖医院推荐、项目清单、价格参考和免费政策，
+                为{userAge}岁备孕女性量身定制的全面体检指南，涵盖医院推荐、项目清单、价格参考和免费政策，
                 帮助您科学备孕，守护新生。
               </p>
               <div className="flex items-center gap-4">
                 <a
                   href="tel:021-12320"
                   className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors"
+                  aria-label="拨打咨询热线"
                 >
                   <Phone className="w-5 h-5" />
-                </a>
-                <a
-                  href="mailto:info@example.com"
-                  className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors"
-                >
-                  <Mail className="w-5 h-5" />
                 </a>
               </div>
             </div>

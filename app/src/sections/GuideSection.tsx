@@ -111,7 +111,7 @@ const guideCards: GuideCard[] = [
 const ageTips = [
   {
     title: 'AMH检测',
-    description: '了解卵巢储备情况，29岁正常值一般在2-6.8ng/ml',
+    description: '了解卵巢储备情况，29岁正常值一般在1.5-4.0ng/ml',
     icon: <User className="w-5 h-5" />,
   },
   {
