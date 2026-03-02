@@ -74,3 +74,38 @@ npm run build    # TypeScript 类型检查 + Vite 生产构建
 npm run lint     # ESLint 检查
 npm run preview  # 本地预览生产构建
 ```
+
+## 浏览器支持
+
+- Chrome 90+
+- Firefox 90+
+- Safari 14+
+- Edge 90+
+
+## 数据来源
+
+- 医院信息：上海市卫健委公开信息
+- 体检项目：国家孕前优生健康检查项目指南
+- 价格参考：各医院官网及第三方平台（仅供参考，以医院实际为准）
+- 免费政策：上海市免费孕前优生健康检查项目
+
+## 注意事项
+
+1. 本网站仅提供信息参考，不构成医疗建议
+2. 体检项目和价格以医院实际为准
+3. AI助手回答仅供参考，具体问题请咨询专业医生
+4. 免费政策申请条件可能调整，请以官方最新政策为准
+
+## 贡献
+
+欢迎提交 Issue 和 Pull Request。
+
+## 许可证
+
+MIT License
+
+## 致谢
+
+- UI组件：[shadcn/ui](https://ui.shadcn.com/)
+- 图标：[Lucide](https://lucide.dev/)
+- 字体：[Noto Serif SC](https://fonts.google.com/noto/specimen/Noto+Serif+SC) / [Noto Sans SC](https://fonts.google.com/noto/specimen/Noto+Sans+SC)

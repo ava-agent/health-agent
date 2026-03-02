@@ -85,3 +85,86 @@ All prefixed with `VITE_` (Vite convention for client-exposed env vars):
 - **Backend**: Supabase Edge Functions + PostgreSQL
 - **Vercel env vars needed**: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_DEMO_MODE=false`
 - **Supabase secrets needed**: `OPENAI_API_KEY` (set in Dashboard → Edge Functions → Secrets)
+
+## Key Data Files
+
+### `aiConfig.ts` - Domain Knowledge
+
+- **`MEDICAL_TERMS`** — 20+ medical term definitions for tooltip/popover explanations
+- **`AGE_GROUPS`** — Age-based recommendations (25-28, 29-32, 33-35, 36-40) with AMH ranges, focus points, and package recommendations
+- **`DEMO_RESPONSES`** — Preset AI responses for demo mode (AMH, TORCH, timing, preparation, free policy, folic acid)
+- **`SYSTEM_PROMPT`** — AI assistant personality and guidelines
+
+### `PackageSection.tsx` - Package Data
+
+Three tiers with price ranges and features:
+- **基础版** (Basic): ¥1,500-2,500 — for 25-28yo, essential tests
+- **全面版** (Comprehensive): ¥3,500-5,000 — for 29-35yo, adds AMH/hormones
+- **高端版** (Premium): ¥6,000-8,000 — for 36+, adds genetic screening
+
+### `HospitalSection.tsx` - Hospital Data
+
+8 Shanghai hospitals with types: `specialist` (红房子, 国妇婴, 一妇婴), `general` (仁济, 瑞金, 曙光), `budget` (第四人民医院, 妇幼保健所)
+
+## Common Patterns
+
+### Age Propagation
+
+```tsx
+// App.tsx holds global userAge state
+const [userAge, setUserAge] = useState<number>(29);
+
+// Passed to sections that need personalization
+<PackageSection userAge={userAge} />
+<CTASection userAge={userAge} />
+<Footer userAge={userAge} />
+<AIAssistant userAge={userAge} />
+
+// AIAssistant syncs to service
+useEffect(() => {
+  aiService.setUserAge(userAge);
+}, [userAge]);
+```
+
+### Timer Cleanup Pattern
+
+```tsx
+const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+
+useEffect(() => {
+  timerRef.current = setTimeout(() => {...}, 500);
+  return () => clearTimeout(timerRef.current);
+}, []);
+```
+
+### Safe Markdown Rendering
+
+No `dangerouslySetInnerHTML`. Instead, split by newlines and parse `**bold**` into `<strong>` elements:
+```tsx
+const renderMessageContent = (content: string) => {
+  const lines = content.split('\n');
+  return lines.map((line, i) => {
+    const parts = line.split(/(\*\*.*?\*\*)/g);
+    return parts.map((part, j) => {
+      const boldMatch = part.match(/^\*\*(.*?)\*\*$/);
+      return boldMatch ? <strong key={j}>{boldMatch[1]}</strong> : <span key={j}>{part}</span>;
+    });
+  });
+};
+```
+
+## Accessibility Features
+
+- `aria-label` on navigation, close buttons, interactive elements
+- `aria-expanded` on mobile menu toggle
+- `aria-hidden` on decorative canvas/elements
+- `role="presentation"` on backdrop divs
+- Keyboard-accessible step cards in PolicySection (onClick handler)
+- Focus-visible styles via Tailwind
+
+## Known Limitations
+
+- No user authentication (anonymous sessions only)
+- AI responses cached locally, not persisted across devices
+- Hospital/pricing data is static (not fetched from API)
+- Chinese language only
