@@ -2,7 +2,7 @@
 
 为备孕女性量身定制的全面体检方案网站，涵盖医院推荐、体检套餐、项目清单、免费政策和AI智能助手。
 
-**在线访问**: [https://app-neon-six-62.vercel.app](https://app-neon-six-62.vercel.app)
+**在线访问**: [https://health.rxcloud.group](https://health.rxcloud.group)
 
 ## 截图
 
