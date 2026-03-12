@@ -1,15 +1,16 @@
 import { useRef, useEffect, useState } from 'react';
-import { 
-  CheckCircle2, 
-  FileText, 
-  MapPin, 
-  Calendar, 
+import {
+  CheckCircle2,
+  FileText,
+  MapPin,
+  Calendar,
   ClipboardCheck,
   Info,
   ChevronRight,
   Building2,
   Phone
 } from 'lucide-react';
+import { useAIContext } from '@/components/ai/AIContextProvider';
 
 interface Step {
   id: number;
@@ -91,7 +92,14 @@ const PolicySection = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [lineProgress, setLineProgress] = useState(0);
   const sectionRef = useRef<HTMLDivElement>(null);
+  const { registerSection } = useAIContext();
   const lineTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+
+  useEffect(() => {
+    if (sectionRef.current) {
+      registerSection('policy', sectionRef.current);
+    }
+  }, [registerSection]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(

@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Check, AlertCircle, Info, ChevronRight, Stethoscope, FlaskConical, Dna, Sparkles, BookOpen } from 'lucide-react';
 import { MedicalTerm } from '@/components/MedicalTerm';
 import { MedicalTermsList } from '@/components/MedicalTerm';
+import { useAIContext } from '@/components/ai/AIContextProvider';
 
 interface CheckItem {
   name: string;
@@ -86,8 +87,15 @@ const ChecklistSection = () => {
   const [animatingItems, setAnimatingItems] = useState(false);
   const [showTermDictionary, setShowTermDictionary] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
+  const { registerSection } = useAIContext();
 
   const animationTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+
+  useEffect(() => {
+    if (sectionRef.current) {
+      registerSection('checklist', sectionRef.current);
+    }
+  }, [registerSection]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(

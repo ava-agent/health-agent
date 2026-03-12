@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Check, Star, Crown, Sparkles, ChevronRight, HelpCircle, Info } from 'lucide-react';
 import { MedicalTerm } from '@/components/MedicalTerm';
 import { getAgeGroup } from '@/services/aiConfig';
+import { useAIContext } from '@/components/ai/AIContextProvider';
 
 type IconName = 'sparkles' | 'star' | 'crown';
 
@@ -96,6 +97,13 @@ const PackageSection = ({ userAge = 29 }: PackageSectionProps) => {
   const [showComparison, setShowComparison] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const sectionRef = useRef<HTMLDivElement>(null);
+  const { registerSection } = useAIContext();
+
+  useEffect(() => {
+    if (sectionRef.current) {
+      registerSection('packages', sectionRef.current);
+    }
+  }, [registerSection]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(

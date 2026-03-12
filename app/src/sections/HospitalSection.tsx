@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
 import { MapPin, Phone, Star, ExternalLink, Building2, Building, Heart } from 'lucide-react';
+import { useAIContext } from '@/components/ai/AIContextProvider';
 
 interface Hospital {
   id: string;
@@ -124,6 +125,13 @@ const HospitalSection = () => {
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
+  const { registerSection } = useAIContext();
+
+  useEffect(() => {
+    if (sectionRef.current) {
+      registerSection('hospitals', sectionRef.current);
+    }
+  }, [registerSection]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(

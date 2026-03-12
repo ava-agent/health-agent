@@ -1,11 +1,11 @@
 import { useRef, useEffect, useState } from 'react';
-import { 
-  Clock, 
-  Calendar, 
-  Utensils, 
-  Moon, 
-  Pill, 
-  Shirt, 
+import {
+  Clock,
+  Calendar,
+  Utensils,
+  Moon,
+  Pill,
+  Shirt,
   Heart,
   AlertTriangle,
   CheckCircle2,
@@ -13,6 +13,7 @@ import {
   User,
   Users
 } from 'lucide-react';
+import { useAIContext } from '@/components/ai/AIContextProvider';
 
 interface GuideCard {
   id: string;
@@ -135,6 +136,13 @@ const GuideSection = () => {
   const [activeCard, setActiveCard] = useState<string | null>(null);
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
+  const { registerSection } = useAIContext();
+
+  useEffect(() => {
+    if (sectionRef.current) {
+      registerSection('guide', sectionRef.current);
+    }
+  }, [registerSection]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
