@@ -274,6 +274,10 @@ const PackageSection = ({ userAge = 29 }: PackageSectionProps) => {
 
                     {/* CTA Button */}
                     <button
+                      onClick={() => {
+                        const el = document.getElementById('checklist');
+                        if (el) el.scrollIntoView({ behavior: 'smooth' });
+                      }}
                       className={`w-full py-3.5 rounded-xl font-medium transition-all duration-300 flex items-center justify-center gap-2 group ${
                         isRecommended
                           ? 'bg-gradient-to-r from-coral-400 to-coral-500 text-white hover:shadow-glow-coral'
