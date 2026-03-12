@@ -284,30 +284,41 @@ export function AIContextProvider({ initialAge, children }: AIContextProviderPro
 
   const sendMessage = useCallback(
     async (content: string) => {
-      const userMsg: ChatMessage = { role: 'user', content, timestamp: Date.now() };
+      if (!content.trim() || isLoading) return;
+
+      const userMsg: ChatMessage = { role: 'user', content: content.trim(), timestamp: Date.now() };
       setMessages(prev => [...prev, userMsg]);
       setIsLoading(true);
 
       try {
-        const reply = await aiService.sendMessage(content);
-        const assistantMsg: ChatMessage = {
-          role: 'assistant',
-          content: reply.content,
-          timestamp: reply.timestamp ?? Date.now(),
-        };
-        setMessages(prev => [...prev, assistantMsg]);
-      } catch (err) {
-        const errorMsg: ChatMessage = {
-          role: 'assistant',
-          content: `\u62B1\u6B49\uFF0C\u53D1\u751F\u4E86\u9519\u8BEF\uFF1A${err instanceof Error ? err.message : '\u672A\u77E5\u9519\u8BEF'}`,
-          timestamp: Date.now(),
-        };
-        setMessages(prev => [...prev, errorMsg]);
+        // Add a placeholder assistant message for streaming
+        const placeholderMsg: ChatMessage = { role: 'assistant', content: '', timestamp: Date.now() };
+        setMessages(prev => [...prev, placeholderMsg]);
+
+        await aiService.sendMessageStreaming(content.trim(), {
+          context: activeSection || undefined,
+          onChunk: (fullText) => {
+            setMessages(prev => {
+              const updated = [...prev];
+              updated[updated.length - 1] = { ...updated[updated.length - 1], content: fullText };
+              return updated;
+            });
+          },
+        });
+      } catch {
+        setMessages(prev => [
+          ...prev,
+          {
+            role: 'assistant',
+            content: '\u62B1\u6B49\uFF0CAI \u670D\u52A1\u6682\u65F6\u4E0D\u53EF\u7528\u3002',
+            timestamp: Date.now(),
+          },
+        ]);
       } finally {
         setIsLoading(false);
       }
     },
-    [aiService],
+    [aiService, isLoading, activeSection],
   );
 
   const clearHistory = useCallback(() => {
