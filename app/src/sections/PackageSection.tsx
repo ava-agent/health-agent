@@ -94,6 +94,7 @@ const PackageSection = ({ userAge = 29 }: PackageSectionProps) => {
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [isVisible, setIsVisible] = useState(false);
   const [showComparison, setShowComparison] = useState(false);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const sectionRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -275,17 +276,23 @@ const PackageSection = ({ userAge = 29 }: PackageSectionProps) => {
                     {/* CTA Button */}
                     <button
                       onClick={() => {
+                        setSelectedId(pkg.id);
                         const el = document.getElementById('checklist');
-                        if (el) el.scrollIntoView({ behavior: 'smooth' });
+                        if (el) {
+                          const offset = el.getBoundingClientRect().top + window.scrollY - 80;
+                          window.scrollTo({ top: offset, behavior: 'smooth' });
+                        }
                       }}
                       className={`w-full py-3.5 rounded-xl font-medium transition-all duration-300 flex items-center justify-center gap-2 group ${
-                        isRecommended
-                          ? 'bg-gradient-to-r from-coral-400 to-coral-500 text-white hover:shadow-glow-coral'
-                          : 'bg-teal-50 text-teal-700 hover:bg-teal-100'
+                        selectedId === pkg.id
+                          ? 'bg-teal-600 text-white ring-2 ring-teal-400 shadow-glow'
+                          : isRecommended
+                            ? 'bg-gradient-to-r from-coral-400 to-coral-500 text-white hover:shadow-glow-coral'
+                            : 'bg-teal-50 text-teal-700 hover:bg-teal-100'
                       }`}
                     >
-                      选择此套餐
-                      <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                      {selectedId === pkg.id ? '已选择 ✓' : '选择此套餐'}
+                      {selectedId !== pkg.id && <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />}
                     </button>
                   </div>
 
