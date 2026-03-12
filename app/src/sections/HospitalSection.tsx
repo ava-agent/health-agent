@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
 import { MapPin, Phone, Star, ExternalLink, Building2, Building, Heart } from 'lucide-react';
 import { useAIContext } from '@/components/ai/AIContextProvider';
+import { AIAnnotationBadge } from '@/components/ai/AIAnnotation';
 
 interface Hospital {
   id: string;
@@ -125,7 +126,7 @@ const HospitalSection = () => {
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
-  const { registerSection } = useAIContext();
+  const { registerSection, getAnnotationForItem } = useAIContext();
 
   useEffect(() => {
     if (sectionRef.current) {
@@ -239,9 +240,17 @@ const HospitalSection = () => {
                         <h3 className="font-bold text-teal-800 text-lg leading-tight mb-1">
                           {hospital.name}
                         </h3>
-                        <span className="text-xs text-teal-500 font-medium">
-                          {hospital.level}
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-teal-500 font-medium">
+                            {hospital.level}
+                          </span>
+                          {(() => {
+                            const annotation = getAnnotationForItem('hospitals', hospital.name);
+                            return annotation ? (
+                              <AIAnnotationBadge type={annotation.type} reason={annotation.reason} compact />
+                            ) : null;
+                          })()}
+                        </div>
                       </div>
                       <div className="flex items-center gap-1 bg-amber-50 px-2 py-1 rounded-lg">
                         <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />

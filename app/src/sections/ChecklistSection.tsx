@@ -3,6 +3,7 @@ import { Check, AlertCircle, Info, ChevronRight, Stethoscope, FlaskConical, Dna,
 import { MedicalTerm } from '@/components/MedicalTerm';
 import { MedicalTermsList } from '@/components/MedicalTerm';
 import { useAIContext } from '@/components/ai/AIContextProvider';
+import { AIAnnotationBadge } from '@/components/ai/AIAnnotation';
 
 interface CheckItem {
   name: string;
@@ -87,7 +88,7 @@ const ChecklistSection = () => {
   const [animatingItems, setAnimatingItems] = useState(false);
   const [showTermDictionary, setShowTermDictionary] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
-  const { registerSection } = useAIContext();
+  const { registerSection, getAnnotationForItem } = useAIContext();
 
   const animationTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
@@ -274,7 +275,7 @@ const ChecklistSection = () => {
                         </div>
                         <div className="flex-1">
                           <div className="flex items-center justify-between gap-4">
-                            <h4 className="font-medium text-teal-800">
+                            <h4 className="font-medium text-teal-800 flex items-center gap-2">
                               {item.isMedical && item.explanation ? (
                                 <MedicalTerm term={item.explanation} showIcon={true}>
                                   {item.name}
@@ -282,6 +283,12 @@ const ChecklistSection = () => {
                               ) : (
                                 item.name
                               )}
+                              {(() => {
+                                const annotation = getAnnotationForItem('checklist', item.name);
+                                return annotation ? (
+                                  <AIAnnotationBadge type={annotation.type} reason={annotation.reason} compact />
+                                ) : null;
+                              })()}
                             </h4>
                             {item.price && (
                               <span className="text-sm text-coral-500 font-medium whitespace-nowrap">

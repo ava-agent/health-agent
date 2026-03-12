@@ -3,6 +3,7 @@ import { Check, Star, Crown, Sparkles, ChevronRight, HelpCircle, Info } from 'lu
 import { MedicalTerm } from '@/components/MedicalTerm';
 import { getAgeGroup } from '@/services/aiConfig';
 import { useAIContext } from '@/components/ai/AIContextProvider';
+import { AIAnnotationBadge } from '@/components/ai/AIAnnotation';
 
 type IconName = 'sparkles' | 'star' | 'crown';
 
@@ -97,7 +98,7 @@ const PackageSection = ({ userAge = 29 }: PackageSectionProps) => {
   const [showComparison, setShowComparison] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const sectionRef = useRef<HTMLDivElement>(null);
-  const { registerSection } = useAIContext();
+  const { registerSection, getAnnotationForItem } = useAIContext();
 
   useEffect(() => {
     if (sectionRef.current) {
@@ -180,7 +181,8 @@ const PackageSection = ({ userAge = 29 }: PackageSectionProps) => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 perspective-1000">
             {packages.map((pkg, index) => {
               const isRecommended = pkg.id === recommendedPackage;
-              
+              const annotation = getAnnotationForItem('packages', pkg.id);
+
               return (
                 <div
                   key={pkg.id}
@@ -227,6 +229,13 @@ const PackageSection = ({ userAge = 29 }: PackageSectionProps) => {
                         <p className="text-2xl font-bold text-coral-500">{pkg.price}</p>
                       </div>
                     </div>
+
+                    {/* AI Annotation */}
+                    {annotation && (
+                      <div className="mb-4">
+                        <AIAnnotationBadge type={annotation.type} reason={annotation.reason} compact />
+                      </div>
+                    )}
 
                     {/* Description */}
                     <p className="text-teal-600/70 text-sm mb-4 leading-relaxed">

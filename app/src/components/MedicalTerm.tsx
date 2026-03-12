@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { HelpCircle, Sparkles } from 'lucide-react';
 import { MEDICAL_TERMS } from '@/services/aiConfig';
 import { getAIService } from '@/services/aiService';
+import { useAIContext } from '@/components/ai/AIContextProvider';
 import {
   Popover,
   PopoverContent,
@@ -31,6 +32,7 @@ export const MedicalTerm = ({
   const [aiExplanation, setAiExplanation] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
   const [hasAskedAI, setHasAskedAI] = useState(false);
+  const { showTermExplanation } = useAIContext();
 
   // 获取预设解释
   const presetExplanation = MEDICAL_TERMS[term] || MEDICAL_TERMS[Object.keys(MEDICAL_TERMS).find(k => term.includes(k)) || ''];
@@ -59,7 +61,11 @@ export const MedicalTerm = ({
 
   return (
     <TooltipProvider delayDuration={200}>
-      <Popover>
+      <Popover onOpenChange={(open) => {
+        if (open && presetExplanation) {
+          showTermExplanation(term, presetExplanation);
+        }
+      }}>
         <PopoverTrigger asChild>
           <span 
             className={`inline-flex items-center gap-1 cursor-help border-b-2 border-dashed border-teal-400 hover:border-coral-400 transition-colors ${className}`}
