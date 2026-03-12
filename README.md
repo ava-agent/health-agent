@@ -49,6 +49,67 @@
 - **演示模式**（默认）— 本地关键词匹配，无需后端，7个预设话题的即时回复
 - **API模式** — 通过 Supabase Edge Function 调用 OpenAI，对话历史持久化存储
 
+## AI Agent 设计详解
+
+### Agent 技术架构全景
+
+![AI Agent技术架构](docs/images/ai-agent-architecture.png)
+
+AI Agent 采用四层架构设计：
+
+| 层级 | 职责 | 核心组件 |
+|------|------|----------|
+| 表现层 | UI交互与渲染 | AIAssistant.tsx（浮窗聊天）、MedicalTerm.tsx（术语悬浮提示）、AgeSelector.tsx |
+| Agent服务层 | 对话管理与路由 | AIService 单例类、Mode Router（演示/API切换）、Conversation History Manager |
+| 后端服务层 | AI调用与持久化 | Supabase Edge Function `health-chat`（Deno运行时）、Supabase Client |
+| 数据与AI层 | 存储与模型推理 | PostgreSQL（health_conversations + health_messages）、OpenAI GPT-3.5-turbo |
+
+### Agent 对话处理流程
+
+![Agent对话处理流程](docs/images/ai-agent-pipeline.png)
+
+消息处理管线的关键步骤：
+
+1. **用户输入** — AIAssistant.tsx 捕获输入，设置加载状态，更新 React 消息列表
+2. **消息路由** — AIService.sendMessage() 根据 `demoMode` 配置分流：
+   - **Demo路径**：800ms模拟延迟 → `getDemoResponse()` 关键词匹配引擎（7条规则，覆盖AMH/TORCH/性激素/时间/准备/免费政策/叶酸）
+   - **API路径**：Supabase Edge Function → 加载DB对话历史 → 构建 `[system_prompt, ...history, user_message]` → OpenAI API → 存储消息 → 返回
+3. **后处理** — 创建助手消息对象，推入 conversationHistory，滑动窗口保留最近20条
+4. **UI更新** — 添加到 React 状态，关闭加载指示器，自动滚动到底部
+
+### Agent 知识库与提示工程
+
+![知识库与提示工程](docs/images/ai-agent-knowledge.png)
+
+#### 知识库架构
+
+| 知识组件 | 内容 | 用途 |
+|----------|------|------|
+| `SYSTEM_PROMPT` | 角色定义（备孕健康顾问）、能力范围、回答原则、地域限定（上海） | Edge Function 构建 messages 数组的首条消息 |
+| `MEDICAL_TERMS` | 20+医学术语释义（AMH、TORCH、TCT、HPV、性激素六项等） | MedicalTerm.tsx 悬浮提示 + AI回复参考 |
+| `AGE_GROUPS` | 4个年龄段模型（25-28/29-32/33-35/36-40），含AMH参考范围、关注重点、推荐套餐 | AgeSelector 个性化推荐 + AI年龄建议 |
+| `DEMO_RESPONSES` | 7个预设话题的完整回复（含格式化markdown） | 演示模式离线回复 |
+
+#### Agent 设计模式
+
+本项目采用 **对话式 Agent 模式（Conversational Agent Pattern）**，核心设计要素：
+
+- **Prompt Engineering** — 通过 SYSTEM_PROMPT 定义 Agent 人格、能力边界和回答风格
+- **Context Injection** — 用户年龄（userAge）作为会话级上下文动态注入
+- **Conversation Memory** — 滑动窗口策略，客户端保留最近20条，服务端全量持久化
+- **Knowledge Retrieval** — 静态词典查询（非向量检索），适用于有限领域知识
+- **Graceful Degradation** — 演示模式作为离线降级方案，无后端依赖即可运行
+
+#### 与高级 Agent 模式的对比
+
+| 维度 | 本项目（简单对话Agent） | RAG模式 | ReAct模式 | Function Calling |
+|------|------------------------|---------|-----------|------------------|
+| 知识检索 | 关键词匹配（if/else） | 向量数据库语义搜索 | 推理驱动的检索 | LLM自主决策 |
+| 推理能力 | 单次LLM调用 | 检索增强生成 | 推理→执行→观察循环 | 工具链式调用 |
+| 外部工具 | 无 | 向量DB | 多种工具 | API/DB/搜索等 |
+| 记忆管理 | 滑动窗口20条 | 向量化长期记忆 | 工作记忆+长期记忆 | 上下文窗口 |
+| 适用场景 | 有限领域FAQ | 大规模文档问答 | 复杂多步推理 | 需要执行操作 |
+
 ## 快速开始
 
 ```bash
