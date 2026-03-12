@@ -94,6 +94,9 @@ module.exports = {
         glow: "0 0 40px rgba(58, 107, 105, 0.15)",
         'glow-coral': "0 0 40px rgba(255, 107, 107, 0.2)",
       },
+      transitionDuration: {
+        '1800': '1800ms',
+      },
       fontFamily: {
         serif: ['"Noto Serif SC"', 'serif'],
         sans: ['"Noto Sans SC"', 'sans-serif'],

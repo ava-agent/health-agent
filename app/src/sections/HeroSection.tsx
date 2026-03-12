@@ -140,7 +140,7 @@ const HeroSection = ({ onAgeChange }: HeroSectionProps) => {
     >
       {/* Background Image */}
       <div 
-        className={`absolute inset-0 transition-all duration-[1.8s] ease-out ${
+        className={`absolute inset-0 transition-all duration-1800 ease-out ${
           isLoaded ? 'scale-100 blur-0' : 'scale-110 blur-md'
         }`}
       >
