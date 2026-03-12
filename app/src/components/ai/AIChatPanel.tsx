@@ -1,7 +1,19 @@
 import { useRef, useEffect, useState } from 'react';
 import { useAIContext } from './AIContextProvider';
-import { X, Send, Bot, User, Loader2, FileText, RotateCcw } from 'lucide-react';
+import { X, Send, Bot, User, Loader2, FileText, RotateCcw, FlaskConical } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { AIReportCard } from './AIReportCard';
+import { ReportInterpreter } from './ReportInterpreter';
+
+function tryParseReport(content: string) {
+  try {
+    const data = JSON.parse(content);
+    if (data.recommendedPackage && data.mustDoItems) return data;
+  } catch {
+    // not JSON — return null
+  }
+  return null;
+}
 
 function renderMessageContent(content: string) {
   const lines = content.split('\n');
@@ -36,6 +48,7 @@ export function AIChatPanel() {
   } = useAIContext();
 
   const [inputValue, setInputValue] = useState('');
+  const [showInterpreter, setShowInterpreter] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll to bottom when messages change
@@ -58,7 +71,8 @@ export function AIChatPanel() {
   };
 
   const handleGeneratePlan = () => {
-    sendMessage('请根据我的情况，生成一份完整的体检计划');
+    const profileSummary = `年龄${userProfile.age}岁，病史：${userProfile.medicalHistory || '无'}，预算：${userProfile.budget === 'low' ? '经济型' : userProfile.budget === 'high' ? '充足' : '中等'}，关注：${userProfile.concerns || '无'}`;
+    sendMessage(`请根据以下用户画像生成个性化体检计划报告：${profileSummary}`);
   };
 
   const profileStatus = userProfile.onboardingComplete
@@ -138,7 +152,9 @@ export function AIChatPanel() {
                       : 'bg-gray-100 text-gray-700 rounded-tl-sm'
                   }`}
                 >
-                  {renderMessageContent(msg.content)}
+                  {msg.role === 'assistant' && tryParseReport(msg.content)
+                    ? <AIReportCard data={tryParseReport(msg.content)!} />
+                    : renderMessageContent(msg.content)}
                 </div>
                 {msg.role === 'user' && (
                   <div className="w-7 h-7 bg-coral-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
@@ -164,9 +180,9 @@ export function AIChatPanel() {
           </div>
         </ScrollArea>
 
-        {/* Generate plan button */}
+        {/* Action buttons */}
         {userProfile.onboardingComplete && messages.length > 0 && !isLoading && (
-          <div className="px-4 pb-2">
+          <div className="px-4 pb-2 space-y-2">
             <button
               onClick={handleGeneratePlan}
               className="w-full bg-gradient-to-r from-teal-500 to-cyan-500 text-white rounded-xl py-2.5 text-sm font-medium flex items-center justify-center gap-2 hover:shadow-md transition-all"
@@ -174,6 +190,14 @@ export function AIChatPanel() {
               <FileText className="w-4 h-4" />
               生成我的体检计划
             </button>
+            <button
+              onClick={() => setShowInterpreter(!showInterpreter)}
+              className="w-full py-2 bg-amber-50 hover:bg-amber-100 rounded-xl text-sm text-amber-700 font-medium flex items-center justify-center gap-2 transition-colors"
+            >
+              <FlaskConical className="w-4 h-4" />
+              {showInterpreter ? '收起报告解读' : '解读检查报告'}
+            </button>
+            {showInterpreter && <ReportInterpreter />}
           </div>
         )}
 

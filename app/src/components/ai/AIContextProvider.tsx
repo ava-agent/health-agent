@@ -275,6 +275,7 @@ export function AIContextProvider({ initialAge, children }: AIContextProviderPro
   // ---- Chat state ----
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [onboardingStep, setOnboardingStep] = useState(0);
   const aiService = useMemo(() => getAIService(), []);
 
   // Sync age to existing aiService singleton
@@ -282,10 +283,102 @@ export function AIContextProvider({ initialAge, children }: AIContextProviderPro
     aiService.setUserAge(userProfile.age);
   }, [aiService, userProfile.age]);
 
+  // Helper: generate default annotations based on user profile
+  const generateDefaultAnnotations = useCallback((profile: UserProfile): Annotation[] => {
+    const result: Annotation[] = [];
+    if (profile.age <= 28) {
+      result.push({ sectionId: 'packages', itemId: 'basic', type: 'recommended', reason: `${profile.age}岁基础检查即可` });
+    } else if (profile.age <= 35) {
+      result.push({ sectionId: 'packages', itemId: 'comprehensive', type: 'recommended', reason: `${profile.age}岁建议全面检查` });
+    } else {
+      result.push({ sectionId: 'packages', itemId: 'premium', type: 'recommended', reason: `${profile.age}岁建议高端全面检查` });
+    }
+    result.push({ sectionId: 'checklist', itemId: 'AMH卵巢储备检测', type: 'important', reason: '评估卵巢储备功能' });
+    result.push({ sectionId: 'checklist', itemId: '甲状腺功能（TSH）', type: 'important', reason: '影响受孕和胎儿发育' });
+    return result;
+  }, []);
+
+  // Helper: generate annotations from AI or fallback to defaults
+  const generateAnnotations = useCallback(async (profile: UserProfile) => {
+    try {
+      const ai = getAIService();
+      ai.setUserAge(profile.age);
+      const response = await ai.sendMessageStreaming(
+        `用户画像：年龄${profile.age}岁，病史：${profile.medicalHistory || '无'}，预算：${profile.budget === 'low' ? '经济型' : profile.budget === 'high' ? '充足' : '中等'}，关注：${profile.concerns || '无'}。请生成页面标注建议。`,
+        { action: 'annotations' },
+      );
+      try {
+        const parsed = JSON.parse(response.content);
+        if (Array.isArray(parsed)) {
+          setAnnotations(parsed);
+          return;
+        }
+      } catch {
+        // parsing failed — fall through to defaults
+      }
+      setAnnotations(generateDefaultAnnotations(profile));
+    } catch {
+      setAnnotations(generateDefaultAnnotations(profile));
+    }
+  }, [setAnnotations, generateDefaultAnnotations]);
+
   const sendMessage = useCallback(
     async (content: string) => {
       if (!content.trim() || isLoading) return;
 
+      // ---- Onboarding flow (local, no AI call) ----
+      if (!userProfile.onboardingComplete) {
+        const userMsg: ChatMessage = { role: 'user', content: content.trim(), timestamp: Date.now() };
+        setMessages(prev => [...prev, userMsg]);
+        setIsLoading(true);
+
+        let responseText = '';
+
+        switch (onboardingStep) {
+          case 0: {
+            const ageMatch = content.match(/\d+/);
+            const age = ageMatch ? parseInt(ageMatch[0]) : userProfile.age;
+            updateUserProfile({ age });
+            responseText = `好的，${age}岁${age <= 28 ? '正处于黄金生育期' : age <= 32 ? '生育力依然很好' : age <= 35 ? '需要重点关注卵巢功能' : '建议做全面高端检查'}！\n\n请问您有没有特殊病史或家族遗传病？（如没有可以回复"没有"）`;
+            setOnboardingStep(1);
+            break;
+          }
+          case 1: {
+            updateUserProfile({ medicalHistory: content.trim() });
+            responseText = '了解了。请问您的预算范围是？\n\n• **经济型** — 2000元以内\n• **中等** — 3000-5000元\n• **充足** — 5000元以上';
+            setOnboardingStep(2);
+            break;
+          }
+          case 2: {
+            const lower = content.toLowerCase();
+            const budget = lower.includes('经济') || lower.includes('2000') || lower.includes('低') ? 'low' as const
+              : lower.includes('充足') || lower.includes('高') || lower.includes('5000') ? 'high' as const
+              : 'medium' as const;
+            updateUserProfile({ budget });
+            responseText = '最后一个问题：您有什么特别关注的方面吗？\n\n比如：卵巢功能、甲状腺、遗传病筛查、口腔健康等。（没有特别关注可以回复"没有"）';
+            setOnboardingStep(3);
+            break;
+          }
+          case 3: {
+            const completedProfile = { ...userProfile, concerns: content.trim(), onboardingComplete: true };
+            updateUserProfile({ concerns: content.trim(), onboardingComplete: true });
+            responseText = '太好了！我已经了解您的情况。\n\n我会在页面中为您标注个性化建议。您可以继续浏览页面，我会根据您看的内容给出实时建议。\n\n有任何问题随时问我！';
+            setOnboardingStep(4);
+            // Trigger annotation generation with the completed profile
+            generateAnnotations(completedProfile);
+            break;
+          }
+        }
+
+        if (responseText) {
+          const assistantMsg: ChatMessage = { role: 'assistant', content: responseText, timestamp: Date.now() };
+          setMessages(prev => [...prev, assistantMsg]);
+        }
+        setIsLoading(false);
+        return;
+      }
+
+      // ---- Normal AI chat flow ----
       const userMsg: ChatMessage = { role: 'user', content: content.trim(), timestamp: Date.now() };
       setMessages(prev => [...prev, userMsg]);
       setIsLoading(true);
@@ -318,11 +411,12 @@ export function AIContextProvider({ initialAge, children }: AIContextProviderPro
         setIsLoading(false);
       }
     },
-    [aiService, isLoading, activeSection],
+    [aiService, isLoading, activeSection, userProfile, onboardingStep, updateUserProfile, generateAnnotations],
   );
 
   const clearHistory = useCallback(() => {
     setMessages([]);
+    setOnboardingStep(0);
     aiService.clearHistory();
   }, [aiService]);
 
