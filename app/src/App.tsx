@@ -10,6 +10,8 @@ import GuideSection from './sections/GuideSection';
 import CTASection from './sections/CTASection';
 import Footer from './sections/Footer';
 import { AIContextProvider } from './components/ai/AIContextProvider';
+import { AIFloatingBar } from './components/ai/AIFloatingBar';
+import { AIChatPanel } from './components/ai/AIChatPanel';
 
 function App() {
   // 全局用户年龄状态
@@ -35,8 +37,8 @@ function App() {
         </main>
         <Footer userAge={userAge} />
 
-        {/* TODO: AIFloatingBar - 底部悬浮提示栏 */}
-        {/* TODO: AIChatPanel - 侧边聊天面板 */}
+        <AIFloatingBar />
+        <AIChatPanel />
       </div>
     </AIContextProvider>
   );
